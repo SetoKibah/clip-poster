@@ -5,6 +5,14 @@
 
 from moviepy.editor import VideoFileClip
 import os
+import logging
+
+def setup_logging():
+    logging.basicConfig(filename="app.log",
+                        level=logging.INFO,
+                        format='%(asctime)s %(levelname)s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+ 
 
 class ClipGenerator:
     """Handles generation of clips from video source provided."""
@@ -25,14 +33,19 @@ class ClipGenerator:
         Returns:
         - str: Path to the extracted clip.
         """
-        clip = self.video.subclip(start_time, end_time)
+        logging.info('Extracting clip from {self.video_path}...')
+        try:
+            clip = self.video.subclip(start_time, end_time)
 
-        # Define output path if not provided.
-        if not output_path:
-            file_name = os.path.basename(self.video_path)
-            base, ext = os.path.splitext(file_name)
-            output_path = f"{base}_clip_{start_time}_{end_time}{ext}"
+            # Define output path if not provided.
+            if not output_path:
+                file_name = os.path.basename(self.video_path)
+                base, ext = os.path.splitext(file_name)
+                output_path = f"{base}_clip_{start_time}_{end_time}{ext}"
+        except Exception as e:
+            logging.error(f"Error occurred extracting clip from {self.video_path}: {str(e)}")
         
+        logging.info('Clip extraction successful.')
         clip.write_videofile(output_path)
 
         return output_path

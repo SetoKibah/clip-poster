@@ -1,6 +1,14 @@
 # clip_processing.py
 
 from moviepy.editor import VideoFileClip
+import logging
+
+def setup_logging():
+    logging.basicConfig(filename="app.log",
+                        level=logging.INFO,
+                        format='%(asctime)s %(levelname)s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+ 
 
 class ClipProcessor:
     """Handles post-processing tasks on generated clips."""
@@ -19,9 +27,14 @@ class ClipProcessor:
             Returns:
             - str: Path to the converted clip.
             """
-            output_path = self.clip_path.rsplit('.',1)[0] + f".{target_format}"
-            self.clip.write_videofile(output_path, codec=target_format)
+            try:
+                logging.info(f"Clip processing begins...")
+                output_path = self.clip_path.rsplit('.',1)[0] + f".{target_format}"
+                self.clip.write_videofile(output_path, codec=target_format)
+            except Exception as e:
+                logging.error(f"Error processing clip: {str(e)}")
 
+            logging.info(f"Clip processing successful.")
             return output_path
         
         def resize(self, resolution):
@@ -50,6 +63,12 @@ class ClipProcessor:
             Returns:
             - str: Mock response after "uploading".
             """
+            try:
+                logging.info('Uploading clip to {platform}...')
+            except Exception as e:
+                logging.error(f"Error uploading to {platform}: {str(e)}")
+            
+            logging.info('Upload to {platform} successful.')
             return f"Clip {self.clip_path} successfully uploaded to {platform}."
         
         def close(self):
