@@ -1,6 +1,9 @@
 # tests/test_clip_processing.py
 
 import unittest
+import logging
+
+
 
 # Import processing
 
