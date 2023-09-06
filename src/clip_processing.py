@@ -1,14 +1,8 @@
 # clip_processing.py
 
-from moviepy.editor import VideoFileClip
+from moviepy.editor import VideoFileClip, CompositeVideoClip
 import logging
 
-def setup_logging():
-    logging.basicConfig(filename="app.log",
-                        level=logging.INFO,
-                        format='%(asctime)s %(levelname)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
- 
 
 class ClipProcessor:
     """Handles post-processing tasks on generated clips."""
@@ -16,6 +10,13 @@ class ClipProcessor:
     def __init__(self, clip_path):
         self.clip_path = clip_path
         self.clip = VideoFileClip(clip_path)
+
+        def add_watermark(self, watermark_path, position=("right", "bottom")):
+            """Add watermark to the clip."""
+            watermark = VideoFileClip(watermark_path, has_mask=True)
+            w, h = self.clip.size
+            watermark = watermark.resize(height=h//10).set_pos(position)
+            return CompositeVideoClip([self.clip, watermark])
 
         def convert_format(self, target_format):
             """
@@ -83,6 +84,9 @@ processor = ClipProcessor("path_to_clip.mp4")
 # Convert format to AVI
 converted_clip_path = processor.convert_format("avi")
 print(f"Converted clip saved at: {converted_clip_path}")
+
+# watermarked_clip = processor.add_watermark("path_to_logo.png")
+watermarked_clip.write_videofile("path_with_watermark.mp4")
 
 # Resize to 480x320 resolution
 resized_clip_path = processor.resize((480, 320))
