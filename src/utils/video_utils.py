@@ -3,6 +3,8 @@
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from moviepy.video.io.ffmpeg_tools import ffmpeg_tools
 from moviepy.video.fx import all as vfx
+from error_handlers import VideoProcessingError, FileFormatError
+import logging
 
 class VideoProcessor():
     """Utility class for handling video processing."""
@@ -31,9 +33,13 @@ class VideoProcessor():
     def convert_format(self, target_format = "mp4"):
         """Convert video to specified format"""
         output_path = self.video_path.rsplit('.', 1)[0] + f".{target_format}"
-        self.clip.write_videofile(output_path, codec=target_format)
-        return output_path
-        
+        try:
+            self.clip.write_videofile(output_path, codec=target_format)
+            return output_path
+        except FileFormatError as e:
+            logging.error(f"Error occurred: {str(e)}")
+            print(f"Error occurred: {e}")
+
     def add_watermark(self, watermark_path, position=("bottom", "right"), margin=10):
         """Overlay a watermark/logo on the video."""
         watermark = VideoFileClip(watermark_path, has_mask=True)
@@ -50,8 +56,11 @@ class VideoProcessor():
         
         watermarked_clip = self.clip.fx(vfx.watermark, watermark, pos=(horizontal_pos, vertical_pos))
         output_path = self.video_path.rsplit('.', 1)[0] + "_watermarked.mp4"
-        watermarked_clip.write_videofile(output_path)
-        return output_path
-    
+        try:
+            watermarked_clip.write_videofile(output_path)
+            return output_path
+        except VideoProcessingError as e:
+            logging.error(f"Error occurred: {str(e)}")
+            print(f"Error occurred: {e}")
     def close(self):
         self.clip.close()

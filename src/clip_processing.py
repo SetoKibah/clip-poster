@@ -1,7 +1,9 @@
 # clip_processing.py
 
 from moviepy.editor import VideoFileClip, CompositeVideoClip
+from utils.error_handlers import FileFormatError, UploadError
 import logging
+
 
 
 class ClipProcessor:
@@ -32,8 +34,9 @@ class ClipProcessor:
                 logging.info(f"Clip processing begins...")
                 output_path = self.clip_path.rsplit('.',1)[0] + f".{target_format}"
                 self.clip.write_videofile(output_path, codec=target_format)
-            except Exception as e:
+            except FileFormatError as e:
                 logging.error(f"Error processing clip: {str(e)}")
+                print(f"Error occurred: {e}")
 
             logging.info(f"Clip processing successful.")
             return output_path
@@ -66,8 +69,9 @@ class ClipProcessor:
             """
             try:
                 logging.info('Uploading clip to {platform}...')
-            except Exception as e:
+            except UploadError as e:
                 logging.error(f"Error uploading to {platform}: {str(e)}")
+                print(f"Error occurred: {e}")
             
             logging.info('Upload to {platform} successful.')
             return f"Clip {self.clip_path} successfully uploaded to {platform}."
